@@ -1,0 +1,150 @@
+/* Базові налаштування */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff5f7;
+    color: #4a4a4a;
+    line-height: 1.6;
+}
+
+/* Шапка та навігаційне меню (Flexbox) */
+header {
+    background-color: #ff85a2;
+    color: white;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex; 
+    justify-content: center;
+    gap: 25px;
+    margin-top: 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+nav ul li a:hover, 
+nav ul li a.active {
+    color: #fce4ec;
+    border-bottom: 2px solid white;
+}
+
+/* Основний контент та сітка квартир (Flexbox) */
+main {
+    min-height: 80vh;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.apartments-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    width: 280px;
+    box-shadow: 0 4px 15px rgba(255, 133, 162, 0.15);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Адаптивні зображення */
+.card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+/* Розділ контактів та форма */
+.contact-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+}
+
+.contact-info, .contact-form {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    flex: 1 1 300px;
+    max-width: 500px;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-form input, 
+.contact-form textarea {
+    padding: 12px;
+    border: 1px solid #ffc1d3;
+    border-radius: 8px;
+}
+
+.contact-form button {
+    background: #d81b60;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    background: #fce4ec;
+    color: #d81b60;
+    margin-top: 40px;
+}
+
+/* Адаптивність (Медіа-запити) */
+
+/* Планшети */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .card {
+        width: 45%;
+    }
+}
+
+/* Телефони */
+@media (max-width: 480px) {
+    .card {
+        width: 100%;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+    }
+}
