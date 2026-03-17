@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Люкс-студія - ComfortStay</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>ComfortStay - Деталі житла</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Доступні квартири</a></li>
+                <li><a href="bookings.html">Мої бронювання</a></li>
+                <li><a href="contacts.html">Контакти</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="detail-page">
+            <div class="detail-container">
+                <div class="detail-image">
+                    <img src="images/photo3.jpg" alt="Люкс-студія">
+                </div>
+                <div class="detail-info">
+                    <h2>Люкс-студія на площі Ринок</h2>
+                    <p class="price">4500 грн / ніч</p>
+                    <p><strong>Опис:</strong> Ексклюзивна студія преміум-класу в самому серці міста. Панорамні вікна з виглядом на Ратушу, антикварні меблі та високий рівень сервісу. Найкращий вибір для тих, хто цінує розкіш.</p>
+                    
+                    <h3>Зручності:</h3>
+                    <ul class="detail-features">
+                        <li><i class="icon">📶</i> Безкоштовний швидкісний Wi-Fi</li>
+                        <li><i class="icon">❄️</i> Кондиціонер</li>
+                        <li><i class="icon">🪟</i> Панорамні вікна</li>
+                        <li><i class="icon">🥐</i> Сніданок включено у вартість</li>
+                        <li><i class="icon">🍷</i> Міні-бар</li>
+                    </ul>
+
+                    <div class="action-buttons">
+                        <button class="book-btn" onclick="addToBookings('Люкс-студія', 'пл. Ринок, 10', '4500 грн / ніч', 'images/photo3.jpg')">Забронювати зараз</button>
+                        <a href="index.html" class="back-link">← Повернутися до списку</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 ComfortStay. Всі права захищені.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

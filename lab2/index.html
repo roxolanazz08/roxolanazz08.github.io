@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComfortStay - Доступні квартири</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <header>
+        <h1>ComfortStay - Оренда житла</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html" class="active">Доступні квартири</a></li>
+                <li><a href="bookings.html">Мої бронювання</a></li>
+                <li><a href="contacts.html">Контакти</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Доступні квартири</h2>
+            <div id="apartments-list" class="apartments-container"></div>
+        </section>
+
+        <section class="map-section">
+            <h2>Карта розташування об'єктів</h2>
+            <div id="map"></div>
+            <div id="map-info-box" class="info-box">Натисніть на маркер на карті</div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 ComfortStay. Всі права захищені.</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

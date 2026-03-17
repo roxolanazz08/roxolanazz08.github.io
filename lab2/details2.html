@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сучасні апартаменти - ComfortStay</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>ComfortStay - Деталі житла</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Доступні квартири</a></li>
+                <li><a href="bookings.html">Мої бронювання</a></li>
+                <li><a href="contacts.html">Контакти</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="detail-page">
+            <div class="detail-container">
+                <div class="detail-image">
+                    <img src="images/photo2.jpg" alt="Сучасні апартаменти">
+                </div>
+                <div class="detail-info">
+                    <h2>Сучасні апартаменти на Липинського</h2>
+                    <p class="price">2100 грн / ніч</p>
+                    <p><strong>Опис:</strong> Стильні та просторі апартаменти в новобудові. Панорамний вигляд на місто та сучасний дизайнерський ремонт зроблять ваше перебування незабутнім. Ідеально для ділових поїздок та комфортного відпочинку.</p>
+                    
+                    <h3>Зручності:</h3>
+                    <ul class="detail-features">
+                        <li><i class="icon">📶</i> Безкоштовний Wi-Fi</li>
+                        <li><i class="icon">❄️</i> Кондиціонер</li>
+                        <li><i class="icon">🏙️</i> Власний балкон</li>
+                        <li><i class="icon">🚗</i> Парковка під охороною</li>
+                        <li><i class="icon">☕</i> Кава-машина</li>
+                    </ul>
+
+                    <div class="action-buttons">
+                        <button class="book-btn" onclick="addToBookings('Сучасні апартаменти', 'вул. В. Липинського, 15', '2100 грн / ніч', 'images/photo2.jpg')">Забронювати зараз</button>
+                        <a href="index.html" class="back-link">← Повернутися до списку</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 ComfortStay. Всі права захищені.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
