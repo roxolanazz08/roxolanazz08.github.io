@@ -22,7 +22,7 @@ function Details({ user }) {
     // Функція для отримання відгуків з нашого власного Node.js сервера
     const fetchReviews = async (pageNum = 1) => {
       try {
-        const response = await fetch(`http://localhost:5000/api/reviews/${id}?page=${pageNum}`);
+        const response = await fetch("/api/reviews/${id}?page=${pageNum}");
         const data = await response.json();
         
         // Якщо прийшло менше 10 відгуків, значить більше в базі немає
@@ -69,7 +69,7 @@ function Details({ user }) {
     const nextPage = page + 1;
     setPage(nextPage);
     
-    fetch(`http://localhost:5000/api/reviews/${id}?page=${nextPage}`)
+    fetch("/api/reviews/${id}?page=${nextPage}")
       .then(res => res.json())
       .then(data => {
           if (data.length < 10) setHasMore(false);
@@ -101,7 +101,7 @@ function Details({ user }) {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/reviews", {
+      const response = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewObj)
