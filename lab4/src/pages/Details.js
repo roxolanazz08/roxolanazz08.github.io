@@ -19,13 +19,12 @@ function Details({ user }) {
     const bookings = JSON.parse(localStorage.getItem('myBookings')) || [];
     setIsBooked(bookings.some(b => String(b.id) === String(id)));
 
-    // Функція для отримання відгуків з нашого власного Node.js сервера
+    // Отримання відгуків з відносного шляху (вже без localhost)
     const fetchReviews = async (pageNum = 1) => {
       try {
-        const response = await fetch("/api/reviews/${id}?page=${pageNum}");
+        const response = await fetch(`/api/reviews/${id}?page=${pageNum}`);
         const data = await response.json();
         
-        // Якщо прийшло менше 10 відгуків, значить більше в базі немає
         if (data.length < 10) {
           setHasMore(false);
         }
@@ -33,7 +32,7 @@ function Details({ user }) {
         if (pageNum === 1) {
           setReviews(data);
         } else {
-          setReviews(prev => [...prev, ...data]); // Додаємо нові до списку
+          setReviews(prev => [...prev, ...data]);
         }
       } catch (error) {
         console.error("Помилка завантаження відгуків із сервера:", error);
@@ -42,7 +41,7 @@ function Details({ user }) {
 
     const fetchData = async () => {
       try {
-        // Отримання квартири (залишається з Firebase напряму)
+        // Отримання квартири безпосередньо з Firebase
         const docRef = doc(db, "apartments", id);
         const docSnap = await getDoc(docRef);
         
@@ -52,7 +51,6 @@ function Details({ user }) {
           setApt(null);
         }
 
-        // Завантажуємо першу сторінку відгуків
         await fetchReviews(1);
       } catch (error) {
         console.error("Помилка:", error);
@@ -64,12 +62,12 @@ function Details({ user }) {
     fetchData();
   }, [id]);
 
-  // Функція для кнопки "Завантажити ще"
   const handleLoadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
     
-    fetch("api/reviews/${id}?page=${nextPage}")
+    // Запит наступної сторінки (без localhost)
+    fetch(`/api/reviews/${id}?page=${nextPage}`)
       .then(res => res.json())
       .then(data => {
           if (data.length < 10) setHasMore(false);
@@ -88,7 +86,6 @@ function Details({ user }) {
     }
   };
 
-  // Оновлене додавання відгуку через POST-запит на наш сервер
   const handleAddReview = async (e) => {
     e.preventDefault();
     if (!newReview.trim()) return;
@@ -101,7 +98,8 @@ function Details({ user }) {
     };
 
     try {
-      const response = await fetch("api/reviews", {
+      // POST-запит (без localhost)
+      const response = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewObj)
@@ -109,7 +107,7 @@ function Details({ user }) {
       
       if (response.ok) {
         const addedReview = await response.json();
-        setReviews([addedReview, ...reviews]); // Додаємо новий відгук на початок списку
+        setReviews([addedReview, ...reviews]);
         setNewReview("");
         alert("Відгук успішно додано через сервер!");
       } else {
@@ -175,7 +173,6 @@ function Details({ user }) {
               </div>
             ))}
             
-            {/* Кнопка пагінації */}
             {hasMore && (
               <button onClick={handleLoadMore} style={{ background: '#fff0f3', color: '#d81b60', border: '1px solid #ffb3c6', padding: '10px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px' }}>
                 Завантажити ще відгуки
