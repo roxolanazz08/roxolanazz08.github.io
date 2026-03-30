@@ -69,7 +69,7 @@ function Details({ user }) {
     const nextPage = page + 1;
     setPage(nextPage);
     
-    fetch("/api/reviews/${id}?page=${nextPage}")
+    fetch("api/reviews/${id}?page=${nextPage}")
       .then(res => res.json())
       .then(data => {
           if (data.length < 10) setHasMore(false);
@@ -101,7 +101,7 @@ function Details({ user }) {
     };
 
     try {
-      const response = await fetch("/api/reviews", {
+      const response = await fetch("api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewObj)

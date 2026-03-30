@@ -54,6 +54,11 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
+// Цей код каже: "всі інші запити відправляй на React"
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Запуск сервера на порту 5000
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
