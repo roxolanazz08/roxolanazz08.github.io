@@ -1,4 +1,3 @@
-// Дані про всі квартири (Важливо: назви мають збігатися з заголовками в HTML)
 const apartmentsData = [
     { id: 0, name: "Затишна квартира", address: "вул. Вірменська, 1", price: "1200 грн/ніч", image: "images/photo1.jpg", details: "details1.html", coords: [49.8430, 24.0305] },
     { id: 1, name: "Сучасні апартаменти", address: "вул. В. Липинського, 15", price: "2100 грн/ніч", image: "images/photo2.jpg", details: "details2.html", coords: [49.8598, 24.0322] },
