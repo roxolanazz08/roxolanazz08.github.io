@@ -4,7 +4,7 @@ const admin = require("firebase-admin");
 const path = require("path");
 
 // Ініціалізація Firebase Admin SDK за допомогою ключа
-const serviceAccount = require("./serviceAccountKey.json");
+const serviceAccount = require(path.join(__dirname, "serviceAccountKey.json"));
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
