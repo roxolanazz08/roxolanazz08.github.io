@@ -7,7 +7,7 @@ function Home() {
   const [apartments, setApartments] = useState([]);
   const [filteredApartments, setFilteredApartments] = useState([]);
   const [myBookings, setMyBookings] = useState(JSON.parse(localStorage.getItem('myBookings')) || []);
-  
+
   const [priceSort, setPriceSort] = useState('');
   const [roomFilter, setRoomFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
@@ -29,7 +29,7 @@ function Home() {
 
   useEffect(() => {
     let filtered = [...apartments];
-    
+
     if (roomFilter) {
       filtered = filtered.filter(apt => apt.rooms === parseInt(roomFilter));
     }
@@ -41,7 +41,7 @@ function Home() {
     } else if (priceSort === 'desc') {
       filtered.sort((a, b) => b.price - a.price);
     }
-    
+
     setFilteredApartments(filtered);
   }, [priceSort, roomFilter, typeFilter, apartments]);
 
@@ -70,7 +70,7 @@ function Home() {
           <option value="asc">Від найдешевших</option>
           <option value="desc">Від найдорожчих</option>
         </select>
-        
+
         <select
           value={roomFilter}
           onChange={(e) => setRoomFilter(e.target.value)}
@@ -81,7 +81,7 @@ function Home() {
           <option value="2">2 кімнати</option>
           <option value="3">3+ кімнати</option>
         </select>
-        
+
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
@@ -93,16 +93,16 @@ function Home() {
           <option value="Студія">Студія</option>
         </select>
       </div>
-      
+
       {/* СПИСОК КВАРТИР */}
       <div className="apartments-container">
         {filteredApartments.length > 0 ? (
           filteredApartments.map(apt => (
-            <ApartmentCard 
-              key={apt.id} 
-              apt={apt} 
-              isBooked={myBookings.some(b => b.id === apt.id)} 
-              onBook={handleBook} 
+            <ApartmentCard
+              key={apt.id}
+              apt={apt}
+              isBooked={myBookings.some(b => b.id === apt.id)}
+              onBook={handleBook}
             />
           ))
         ) : (
@@ -111,7 +111,7 @@ function Home() {
           </p>
         )}
       </div>
-      
+
       {/* МАПА */}
       <div className="map-section">
         <h3 style={{textAlign: 'center', color: '#d81b60', marginTop: '40px'}}>Карта об'єктів</h3>

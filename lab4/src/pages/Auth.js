@@ -29,20 +29,20 @@ function Auth() {
     <section style={{ maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
       <h2>{isLogin ? 'Вхід' : 'Реєстрація'}</h2>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <input 
-          type="email" 
-          placeholder="Email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
           style={{ padding: '10px' }}
         />
-        <input 
-          type="password" 
-          placeholder="Пароль" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          required 
+        <input
+          type="password"
+          placeholder="Пароль"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
           style={{ padding: '10px' }}
         />
         <button type="submit" className="book-btn">{isLogin ? 'Увійти' : 'Зареєструватися'}</button>
