@@ -6,13 +6,12 @@ const path = require("path");
 // Ініціалізація Firebase через змінні оточення (Render)
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+// Захист: ініціалізуємо Firebase тільки якщо він ще не запущений
+if (admin.apps.length === 0) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
 const db = admin.firestore();
 const app = express();
@@ -59,11 +58,9 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
-
 app.get(/^(?!\/api).+/, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
