@@ -3,6 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
+// Вказуємо точну адресу твого сервера на Render
+const API_URL = "https://comfortstay-api.onrender.com";
+
 function Details({ user }) {
   const { id } = useParams();
   const [apt, setApt] = useState(null);
@@ -19,10 +22,11 @@ function Details({ user }) {
     const bookings = JSON.parse(localStorage.getItem('myBookings')) || [];
     setIsBooked(bookings.some(b => String(b.id) === String(id)));
 
-    // Отримання відгуків з відносного шляху (вже без localhost)
     const fetchReviews = async (pageNum = 1) => {
       try {
-        const response = await fetch(`/api/reviews/${id}?page=${pageNum}`);
+        // Додаємо API_URL
+        const response = await fetch(`${API_URL}/api/reviews/${id}?page=${pageNum}`);
+        if (!response.ok) throw new Error("Не вдалося завантажити відгуки");
         const data = await response.json();
         
         if (data.length < 10) {
@@ -41,7 +45,6 @@ function Details({ user }) {
 
     const fetchData = async () => {
       try {
-        // Отримання квартири безпосередньо з Firebase
         const docRef = doc(db, "apartments", id);
         const docSnap = await getDoc(docRef);
         
@@ -66,8 +69,8 @@ function Details({ user }) {
     const nextPage = page + 1;
     setPage(nextPage);
     
-    // Запит наступної сторінки (без localhost)
-    fetch(`/api/reviews/${id}?page=${nextPage}`)
+    // Додаємо API_URL
+    fetch(`${API_URL}/api/reviews/${id}?page=${nextPage}`)
       .then(res => res.json())
       .then(data => {
           if (data.length < 10) setHasMore(false);
@@ -98,8 +101,8 @@ function Details({ user }) {
     };
 
     try {
-      // POST-запит (без localhost)
-      const response = await fetch("/api/reviews", {
+      // POST-запит з API_URL
+      const response = await fetch(`${API_URL}/api/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewObj)
@@ -111,7 +114,8 @@ function Details({ user }) {
         setNewReview("");
         alert("Відгук успішно додано через сервер!");
       } else {
-        alert("Помилка при додаванні відгуку");
+        const errorData = await response.json();
+        alert("Помилка при додаванні відгуку: " + (errorData.error || "Невідома помилка"));
       }
     } catch (error) {
       alert("Помилка підключення до сервера: " + error.message);
