@@ -39,7 +39,7 @@ const Details = () => {
         }
 
         // 2. Отримуємо відгуки з Node.js сервера (Лаба 5)
-        const res = await fetch(`http://localhost:5000/api/reviews/${id}?page=${page}`);
+        const res = await fetch(`https://comfortstay-backend.onrender.com/api/reviews/${id}?page=${page}`);
         if (res.ok) {
           const data = await res.json();
           setReviews(data.reviews || []);
@@ -67,7 +67,7 @@ const Details = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/reviews", {
+      const response = await fetch("https://comfortstay-backend.onrender.com/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewData),
@@ -78,7 +78,7 @@ const Details = () => {
         setPage(1); // Повертаємось на 1 сторінку
         
         // Оновлюємо список відгуків
-        const fetchResponse = await fetch(`http://localhost:5000/api/reviews/${id}?page=1`);
+        const fetchResponse = await fetch(`https://comfortstay-backend.onrender.com/api/reviews/${id}?page=1`);
         const data = await fetchResponse.json();
         setReviews(data.reviews || []);
         setTotalPages(data.totalPages || 1);
