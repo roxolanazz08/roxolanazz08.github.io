@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
-
+const path = require("path");
 // Ініціалізація Firebase Admin
 const serviceAccount = require("./serviceAccountKey.json");
 admin.initializeApp({
@@ -71,6 +71,15 @@ app.post("/api/reviews", async (req, res) => {
     console.error("Помилка додавання відгуку:", error);
     res.status(500).json({ error: "Внутрішня помилка сервера" });
   }
+});
+
+// Роздаємо статичні файли з папки build
+app.use(express.static(path.join(__dirname, "build")));
+
+// Якщо користувач переходить на будь-яку сторінку (наприклад /apartment/1),
+// завжди віддаємо йому наш React-сайт
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;
