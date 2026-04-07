@@ -78,7 +78,7 @@ app.use(express.static(path.join(__dirname, "build")));
 
 // Якщо користувач переходить на будь-яку сторінку (наприклад /apartment/1),
 // завжди віддаємо йому наш React-сайт
-app.get("/*", (req, res) => {
+app.get(/^(?!\/api).+/, (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
