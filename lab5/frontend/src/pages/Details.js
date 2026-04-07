@@ -1,38 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { db } from '../firebase';
-import { doc, getDoc, collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
+import { db, auth } from "../firebase"; 
+import { onAuthStateChanged } from "firebase/auth";
 
-function Details({ user }) {
+const Details = () => {
   const { id } = useParams();
-  const [apt, setApt] = useState(null);
+  const [apartment, setApartment] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  const [user, setUser] = useState(null);
+  const [isBooked, setIsBooked] = useState(true); // Заглушка для відображення форми
+
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState("");
-  const [isBooked, setIsBooked] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    // Перевірка локального бронювання
-    const bookings = JSON.parse(localStorage.getItem('myBookings')) || [];
-    setIsBooked(bookings.some(b => String(b.id) === String(id)));
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
+  useEffect(() => {
     const fetchData = async () => {
       try {
-        // Отримання квартири
+        setLoading(true);
+
+        // 1. Отримуємо дані квартири з Firebase
         const docRef = doc(db, "apartments", id);
         const docSnap = await getDoc(docRef);
-
+        
         if (docSnap.exists()) {
-          setApt({ ...docSnap.data(), id: docSnap.id });
-        } else {
-          setApt(null);
+          const data = docSnap.data();
+          setApartment(data);
         }
 
-        // Отримання відгуків
-        const q = query(collection(db, "reviews"), where("apartmentId", "==", id));
-        const querySnapshot = await getDocs(q);
-        setReviews(querySnapshot.docs.map(doc => doc.data()));
-
+        // 2. Отримуємо відгуки з Node.js сервера (Лаба 5)
+        const res = await fetch(`http://localhost:5000/api/reviews/${id}?page=${page}`);
+        if (res.ok) {
+          const data = await res.json();
+          setReviews(data.reviews || []);
+          setTotalPages(data.totalPages || 1);
+        }
       } catch (error) {
         console.error("Помилка завантаження:", error);
       } finally {
@@ -41,155 +53,169 @@ function Details({ user }) {
     };
 
     fetchData();
-  }, [id]);
-
-  const handleBook = () => {
-    let bookings = JSON.parse(localStorage.getItem('myBookings')) || [];
-    // Використовуємо String() для надійного порівняння ID з Firebase та LocalStorage
-    if (!bookings.some(b => String(b.id) === String(apt.id))) {
-      bookings.push(apt);
-      localStorage.setItem('myBookings', JSON.stringify(bookings));
-      setIsBooked(true);
-      alert(`${apt.name} успішно заброньовано!`);
-    }
-  };
+  }, [id, page]);
 
   const handleAddReview = async (e) => {
     e.preventDefault();
     if (!newReview.trim()) return;
 
-    const reviewObj = {
-      apartmentId: id,
-      userEmail: user.email,
+    const reviewData = {
+      apartmentId: String(id),
+      userEmail: user?.email || "Анонім",
       text: newReview,
       date: new Date().toLocaleDateString()
     };
 
     try {
-      await addDoc(collection(db, "reviews"), reviewObj);
-      setReviews([...reviews, reviewObj]);
-      setNewReview("");
-      alert("Відгук додано!");
+      const response = await fetch("http://localhost:5000/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reviewData),
+      });
+
+      if (response.ok) {
+        setNewReview("");
+        setPage(1); // Повертаємось на 1 сторінку
+        
+        // Оновлюємо список відгуків
+        const fetchResponse = await fetch(`http://localhost:5000/api/reviews/${id}?page=1`);
+        const data = await fetchResponse.json();
+        setReviews(data.reviews || []);
+        setTotalPages(data.totalPages || 1);
+        alert("Відгук додано!");
+      }
     } catch (error) {
-      alert("Помилка при додаванні відгуку: " + error.message);
+      alert("Помилка сервера при відправці відгуку.");
     }
   };
 
-  if (loading) {
-    return <h2 style={{ textAlign: 'center', padding: '50px' }}>Завантаження...</h2>;
-  }
+  if (loading) return <div className="loading" style={{textAlign: "center", padding: "50px"}}>Завантаження...</div>;
+  if (!apartment) return <div className="error" style={{textAlign: "center", padding: "50px", color: "red"}}>Квартиру не знайдено.</div>;
 
-  if (!apt) {
-    return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <h2>Квартиру не знайдено</h2>
-        <Link to="/">Повернутися на головну</Link>
-      </div>
-    );
-  }
+  // Визначаємо шлях до фото
+  const apartmentImage = apartment.image || apartment.img || apartment.imageUrl;
 
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-      {/* Деталі квартири (Твій оригінальний дизайн) */}
-      <div className="detail-container">
-        <div className="detail-image">
-          <img src={apt.image} alt={apt.name} />
-        </div>
-
-        <div className="detail-info">
-          <h2 style={{ marginTop: '0' }}>{apt.name}</h2>
-          <p className="price" style={{ color: '#d81b60', fontSize: '1.4rem', fontWeight: 'bold' }}>
-            {apt.price} грн / ніч
-          </p>
-
-          <div className="description-box" style={{ background: '#fffafa', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #ffeef2' }}>
-            <p style={{ margin: '5px 0' }}><strong>Адреса:</strong> {apt.address}</p>
-            <p style={{ margin: '5px 0' }}><strong>Тип житла:</strong> {apt.type}</p>
-            <p style={{ margin: '5px 0' }}><strong>Кількість кімнат:</strong> {apt.rooms}</p>
-            <hr style={{ border: 'none', borderTop: '1px solid #ffeef2', margin: '15px 0' }} />
-            <p style={{ margin: '5px 0', lineHeight: '1.5' }}><strong>Опис:</strong> {apt.description}</p>
+    <div className="details-container" style={{ padding: "20px", maxWidth: "800px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
+      
+      <div className="apartment-card" style={{ marginBottom: "30px" }}>
+        <h1 style={{ color: "#333", marginBottom: "15px" }}>{apartment.title || apartment.name}</h1>
+        
+        {/* Блок з фото - УНІФІКОВАНИЙ РОЗМІР */}
+        {apartmentImage ? (
+          <img 
+            src={apartmentImage} 
+            alt="apartment" 
+            style={{ 
+              width: "100%", 
+              height: "400px",       // Фіксована висота для всіх фото
+              objectFit: "cover",     // Робить фото акуратним, обрізаючи зайве
+              borderRadius: "12px", 
+              marginBottom: "20px",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+            }}
+          />
+        ) : (
+          <div style={{ width: "100%", height: "400px", background: "#eee", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", marginBottom: "20px", color: "#888" }}>
+            Фото відсутнє в базі
           </div>
-
-          <h3 style={{ marginTop: '0' }}>Зручності:</h3>
-          <ul className="features-list" style={{ paddingLeft: '20px', marginBottom: '20px', lineHeight: '1.6' }}>
-            {/* Додано перевірку apt.features? на випадок відсутності масиву в БД */}
-            {apt.features?.map((feature, index) => (
-              <li key={index} style={{ marginBottom: '5px' }}>{feature}</li>
-            ))}
-          </ul>
-
-          <p className={isBooked ? 'status-booked' : 'status-available'} style={{ fontSize: '1.1rem' }}>
-            {isBooked ? 'Статус: Заброньовано' : 'Статус: Доступно'}
+        )}
+        
+        <div className="info-section" style={{ background: "#fff", padding: "20px", borderRadius: "12px", boxShadow: "0 2px 5px rgba(0,0,0,0.05)" }}>
+          <p style={{ fontSize: "1.3em", color: "#db7093", fontWeight: "bold", margin: "0 0 10px 0" }}>
+            Ціна: {apartment.price} грн/доба
           </p>
-
-          <button
-            className="book-btn"
-            disabled={isBooked}
-            onClick={handleBook}
-            style={{ width: '100%', fontSize: '1.1rem', padding: '15px' }}
-          >
-            {isBooked ? 'Заброньовано' : 'Забронювати зараз'}
-          </button>
-
-          <Link to="/" className="back-link" style={{ display: 'block', marginTop: '20px', color: '#6a1b9a', textAlign: 'center', textDecoration: 'none', fontWeight: 'bold' }}>
-            Повернутися до списку
-          </Link>
+          <p style={{ margin: "0 0 10px 0", color: "#555" }}>
+            <strong>Адреса:</strong> {apartment.location || apartment.address}
+          </p>
+          <p style={{ lineHeight: "1.7", color: "#666", margin: 0 }}>
+            {apartment.description}
+          </p>
         </div>
       </div>
 
-      {/* Секція відгуків */}
-      <div className="reviews-section" style={{ background: 'white', padding: '25px', borderRadius: '15px', boxShadow: '0 10px 30px rgba(255, 133, 162, 0.15)' }}>
-        <h3 style={{ color: '#d81b60', marginTop: '0' }}>Відгуки</h3>
+      <hr style={{ margin: "40px 0", border: "0", borderTop: "2px solid #eee" }} />
+
+      <div className="reviews-section">
+        <h2 style={{ color: "#333", marginBottom: "20px" }}>Відгуки користувачів</h2>
 
         {reviews.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
-            {reviews.map((rev, idx) => (
-              <div key={idx} style={{ borderBottom: '1px solid #ffeef2', paddingBottom: '15px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                  <strong style={{ color: '#4a4a4a' }}>{rev.userEmail}</strong>
-                  <small style={{ color: '#888' }}>{rev.date}</small>
+          <div className="reviews-list">
+            {reviews.map((review, index) => (
+              <div key={index} style={{ background: "#fff", padding: "15px", borderRadius: "8px", marginBottom: "15px", border: "1px solid #eee" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", borderBottom: "1px solid #f0f0f0", paddingBottom: "5px" }}>
+                  <strong style={{ color: "#555" }}>{review.userEmail}</strong>
+                  <span style={{ color: "#999", fontSize: "0.9em" }}>{review.date}</span>
                 </div>
-                <p style={{ margin: '0', lineHeight: '1.4' }}>{rev.text}</p>
+                <p style={{ margin: 0, color: "#444", lineHeight: "1.5" }}>{review.text}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p style={{ color: '#666' }}>Поки немає жодного відгуку. Будьте першим!</p>
+          <p style={{ fontStyle: "italic", color: "#888" }}>Поки немає відгуків. Будьте першими!</p>
         )}
 
-        {/* Форма для відгуків (тільки для авторизованих + хто орендував) */}
+        {/* Пагінація */}
+        {totalPages > 1 && (
+          <div className="pagination" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "15px", margin: "25px 0" }}>
+            <button 
+              onClick={() => setPage(p => Math.max(p - 1, 1))} 
+              disabled={page === 1} 
+              style={{ padding: "8px 15px", cursor: "pointer", borderRadius: "5px", border: "1px solid #ccc", background: page === 1 ? "#eee" : "#fff" }}
+            >
+              Назад
+            </button>
+            <span style={{ fontWeight: "bold", color: "#555" }}>Сторінка {page} з {totalPages}</span>
+            <button 
+              onClick={() => setPage(p => Math.min(p + 1, totalPages))} 
+              disabled={page === totalPages} 
+              style={{ padding: "8px 15px", cursor: "pointer", borderRadius: "5px", border: "1px solid #ccc", background: page === totalPages ? "#eee" : "#fff" }}
+            >
+              Вперед
+            </button>
+          </div>
+        )}
+
+        {/* Форма відгуку */}
         {user && isBooked ? (
-          <form onSubmit={handleAddReview} style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <form onSubmit={handleAddReview} style={{ marginTop: "35px", background: "#fff", padding: "20px", borderRadius: "12px", border: "1px solid #eee", display: "flex", flexDirection: "column", gap: "15px" }}>
+            <h3 style={{ margin: "0 0 10px 0", color: "#333" }}>Залишити свій відгук</h3>
             <textarea
               value={newReview}
               onChange={(e) => setNewReview(e.target.value)}
-              placeholder="Напишіть свій відгук про проживання..."
+              placeholder="Поділіться вашими враженнями про проживання..."
               required
-              rows="4"
-              style={{
-                padding: '15px',
-                borderRadius: '10px',
-                border: '2px solid #ffeef2',
-                fontFamily: 'inherit',
-                fontSize: '1rem',
-                resize: 'vertical',
-                outline: 'none'
-              }}
+              rows="5"
+              style={{ padding: "12px", borderRadius: "8px", border: "1px solid #ddd", fontFamily: "inherit", fontSize: "1em", resize: "vertical" }}
             />
-            <button type="submit" className="book-btn" style={{ alignSelf: 'flex-start', padding: '10px 25px' }}>
-              Залишити відгук
+            {/* РОЖЕВА КНОПКА */}
+            <button 
+              type="submit" 
+              style={{ 
+                padding: "12px", 
+                background: "#db7093", // Рожевий колір
+                color: "white", 
+                border: "none", 
+                borderRadius: "8px", 
+                cursor: "pointer", 
+                fontWeight: "bold", 
+                fontSize: "1.1em",
+                transition: "background 0.3s ease" 
+              }}
+              onMouseOver={(e) => e.target.style.background = "#c76083"} // Ефект при наведенні
+              onMouseOut={(e) => e.target.style.background = "#db7093"}
+            >
+              Відправити відгук
             </button>
           </form>
         ) : (
-          <div style={{ marginTop: '20px', padding: '15px', background: '#fff5f7', borderRadius: '10px', borderLeft: '4px solid #ff85a2' }}>
-            <p style={{ margin: '0', color: '#6a1b9a', fontSize: '0.95rem' }}>
-              <em>* Залишати відгуки можуть лише авторизовані користувачі, які орендували цю квартиру.</em>
-            </p>
+          <div style={{ marginTop: "20px", padding: "15px", background: "#f8d7da", color: "#721c24", borderRadius: "8px", border: "1px solid #f5c6cb" }}>
+            Увійдіть у систему, щоб мати можливість залишити відгук.
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
-}
+};
 
 export default Details;
